@@ -8,36 +8,37 @@ st_autorefresh(interval=5000, key="datarefresh")
 
 st.set_page_config(page_title="Senado Colombia", layout="wide")
 
-st.title("🗳️ Proyección Senado Colombia en Tiempo Real")
+st.title("🗳️ Centro de Monitoreo Electoral – Senado Colombia")
 
 # 🔐 Conexión a Supabase
 SUPABASE_URL = "https://afpmkctzeeonkrlcimjf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcG1rY3R6ZWVvbmtybGNpbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODgwNjcsImV4cCI6MjA4Nzk2NDA2N30.RDHiPO4dmwqClJPBLHWXzM-d6OROSQniKypko8GEYkc"
+SUPABASE_KEY = "TU_ANON_KEY_AQUI"
 
 try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    response = supabase.table("votos").select("*").execute()
-    data = response.data
-except Exception as e:
-    st.error("Error conectando a la base de datos")
+
+    preconteo = supabase.table("resultados_preconteo").select("*").execute().data
+    e14 = supabase.table("resultados_e14").select("*").execute().data
+
+except Exception:
+    st.error("Error conectando con la base")
     st.stop()
 
 # 🚫 Si no hay datos
-if not data:
-    st.warning("Aún no hay datos en la base")
+if not preconteo:
+    st.warning("Aún no hay datos de preconteo")
     st.stop()
 
-# 📊 DataFrame
-df = pd.DataFrame(data)
+df_pre = pd.DataFrame(preconteo)
 
-# 🧮 Consolidar votos por partido
-df_partidos = df.groupby("partido", as_index=False)["votos"].sum()
+# 🧮 CONSOLIDACIÓN NACIONAL (base para D’Hondt)
+df_partidos = df_pre.groupby("partido", as_index=False)["votos"].sum()
 df_partidos = df_partidos.sort_values(by="votos", ascending=False)
 
-st.subheader("📊 Votos por Partido")
+st.subheader("📊 Votación Nacional por Partido")
 st.bar_chart(df_partidos.set_index("partido"))
 
-# 🏛️ Método D’Hondt
+# 🏛️ MÉTODO D’HONDT
 curules = 100
 cocientes = []
 
@@ -51,20 +52,45 @@ resultado = {}
 for partido, _ in cocientes[:curules]:
     resultado[partido] = resultado.get(partido, 0) + 1
 
-# 📈 Mostrar curules ordenadas
 df_curules = pd.DataFrame(
     list(resultado.items()), columns=["Partido", "Curules"]
 ).sort_values(by="Curules", ascending=False)
 
-st.subheader("🏛️ Curules Proyectadas")
+st.subheader("🏛️ Proyección de Curules")
 st.dataframe(df_curules, use_container_width=True)
 
-st.caption("🔄 Actualización automática cada 5 segundos")
+# 🔍 COMPARACIÓN PRECONTEO VS E14
+if preconteo and e14:
+    df_e14 = pd.DataFrame(e14)
 
-# 📤 Sección futura para OCR
+    df_compare = pd.merge(
+        df_pre,
+        df_e14,
+        on=["mesa_id", "partido", "candidato"],
+        suffixes=("_pre", "_e14"),
+        how="inner"
+    )
+
+    df_compare["diferencia"] = df_compare["votos_pre"] - df_compare["votos_e14"]
+    df_compare["porcentaje"] = (
+        df_compare["diferencia"].abs() / df_compare["votos_e14"].replace(0, 1)
+    ) * 100
+
+    alertas = df_compare[df_compare["porcentaje"] > 5]
+
+    st.subheader("🚨 Mesas con inconsistencias detectadas")
+
+    if len(alertas) > 0:
+        st.dataframe(alertas, use_container_width=True)
+    else:
+        st.success("No se detectan inconsistencias relevantes")
+
+# 📤 SECCIÓN OCR
 st.divider()
-st.subheader("📎 Subir E14 (Próximamente OCR automático)")
+st.subheader("📎 Subir E14 (OCR automático en desarrollo)")
 uploaded_file = st.file_uploader("Cargar PDF o imagen", type=["pdf", "png", "jpg", "jpeg"])
 
 if uploaded_file:
-    st.info("Archivo recibido. Próximo paso: procesar OCR y subir votos automáticamente.")
+    st.info("Archivo recibido. Próximo paso: procesar OCR y registrar votos automáticamente.")
+
+st.caption("🔄 Sistema en actualización continua cada 5 segundos")
