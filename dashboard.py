@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 from supabase import create_client
+from streamlit_autorefresh import st_autorefresh
+
+# 🔹 Auto-refresh cada 5 segundos
+st_autorefresh(interval=5000, key="datarefresh")
 
 st.title("Proyección Senado Colombia en Tiempo Real")
 
@@ -10,18 +14,18 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🔹 Leer datos de la tabla votos
+# 🔹 Leer datos en tiempo real
 response = supabase.table("votos").select("*").execute()
 data = response.data
 
-if len(data) == 0:
+if not data:
     st.warning("Aún no hay datos en la base")
     st.stop()
 
 df = pd.DataFrame(data)
 
 # 🔹 Consolidar votos por partido
-df_partidos = df.groupby("partido")["votos"].sum().reset_index()
+df_partidos = df.groupby("partido", as_index=False)["votos"].sum()
 
 st.subheader("Votos por partido")
 st.bar_chart(df_partidos.set_index("partido"))
@@ -31,8 +35,8 @@ curules = 100
 cocientes = []
 
 for _, row in df_partidos.iterrows():
-    for i in range(1, curules+1):
-        cocientes.append((row["partido"], row["votos"]/i))
+    for i in range(1, curules + 1):
+        cocientes.append((row["partido"], row["votos"] / i))
 
 cocientes.sort(key=lambda x: x[1], reverse=True)
 
@@ -42,3 +46,5 @@ for partido, _ in cocientes[:curules]:
 
 st.subheader("Curules proyectadas")
 st.write(resultado)
+
+st.caption("Actualización automática cada 5 segundos")
