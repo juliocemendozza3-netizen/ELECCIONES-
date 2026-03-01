@@ -45,6 +45,14 @@ if total_mesas > 0:
     col3.metric("Cobertura nacional", f"{porcentaje:.2f}%")
 
     st.progress(min(porcentaje / 100, 1.0))
+
+    # 📈 INDICADOR DE ESTABILIDAD
+    if porcentaje < 30:
+        st.warning("Proyección temprana: resultados aún muy volátiles")
+    elif porcentaje < 70:
+        st.info("Proyección en consolidación: pueden existir cambios")
+    else:
+        st.success("Resultado altamente estable: tendencia casi definitiva")
 else:
     st.warning("No hay mesas registradas aún en la base")
 
@@ -125,6 +133,17 @@ if preconteo and e14:
         st.dataframe(alertas, use_container_width=True)
     else:
         st.success("No se detectan inconsistencias relevantes")
+
+    # 📄 DETECCIÓN DE E14 ILEGIBLE
+    df_e14_check = df_e14[
+        (df_e14["votos"].isna()) |
+        (df_e14["votos"] == 0)
+    ]
+
+    if len(df_e14_check) > 0:
+        st.subheader("⚠️ E14 con posibles problemas de legibilidad")
+        st.dataframe(df_e14_check, use_container_width=True)
+        st.error("Estas mesas requieren revisión y posible reclamación")
 
 # 📤 SECCIÓN OCR
 st.divider()
