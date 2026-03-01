@@ -6,7 +6,7 @@ st.title("Proyección Senado Colombia en Tiempo Real")
 
 # 🔹 Conexión a Supabase
 SUPABASE_URL = "https://afpmkctzeeonkrlcimjf.supabase.co"
-SUPABASE_KEY = "TU_ANON_KEY_AQUI"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcG1rY3R6ZWVvbmtybGNpbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODgwNjcsImV4cCI6MjA4Nzk2NDA2N30.RDHiPO4dmwqClJPBLHWXzM-d6OROSQniKypko8GEYkc"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
