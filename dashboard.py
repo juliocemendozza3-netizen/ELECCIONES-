@@ -19,6 +19,7 @@ try:
 
     preconteo = supabase.table("resultados_preconteo").select("*").execute().data
     e14 = supabase.table("resultados_e14").select("*").execute().data
+    mesas_totales = supabase.table("mesas").select("id_mesa").execute().data
 
 except Exception:
     st.error("Error conectando con la base")
@@ -30,6 +31,22 @@ if not preconteo:
     st.stop()
 
 df_pre = pd.DataFrame(preconteo)
+
+# 📍 COBERTURA NACIONAL DE MESAS
+total_mesas = len(mesas_totales)
+mesas_reportadas = df_pre["mesa_id"].nunique()
+
+if total_mesas > 0:
+    porcentaje = (mesas_reportadas / total_mesas) * 100
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Mesas del país", total_mesas)
+    col2.metric("Mesas reportadas", mesas_reportadas)
+    col3.metric("Cobertura nacional", f"{porcentaje:.2f}%")
+
+    st.progress(min(porcentaje / 100, 1.0))
+else:
+    st.warning("No hay mesas registradas aún en la base")
 
 # 🧮 CONSOLIDACIÓN NACIONAL (base para D’Hondt)
 df_partidos = df_pre.groupby("partido", as_index=False)["votos"].sum()
