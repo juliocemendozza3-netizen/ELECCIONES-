@@ -9,7 +9,7 @@ st.set_page_config(page_title="Senado Colombia", layout="wide")
 st.title("🗳️ Centro de Monitoreo Electoral – Senado Colombia")
 
 SUPABASE_URL = "https://afpmkctzeeonkrlcimjf.supabase.co"
-SUPABASE_KEY = "TU_ANON_KEY_AQUI"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcG1rY3R6ZWVvbmtybGNpbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODgwNjcsImV4cCI6MjA4Nzk2NDA2N30.RDHiPO4dmwqClJPBLHWXzM-d6OROSQniKypko8GEYkc"
 
 try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
