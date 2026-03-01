@@ -59,6 +59,30 @@ df_curules = pd.DataFrame(
 st.subheader("🏛️ Proyección de Curules")
 st.dataframe(df_curules, use_container_width=True)
 
+# 🏆 IDENTIFICAR SENADORES PROYECTADOS (listas preferentes)
+st.subheader("🏆 Senadores proyectados por candidato")
+
+df_candidatos = df_pre.groupby(
+    ["partido", "candidato"], as_index=False
+)["votos"].sum()
+
+senadores = []
+
+for partido, curules_partido in resultado.items():
+    df_partido = df_candidatos[df_candidatos["partido"] == partido]
+    df_partido = df_partido.sort_values(by="votos", ascending=False)
+    ganadores = df_partido.head(curules_partido)
+
+    if not ganadores.empty:
+        senadores.append(ganadores)
+
+if senadores:
+    df_senadores = pd.concat(senadores)
+    df_senadores = df_senadores.sort_values(by="votos", ascending=False)
+    st.dataframe(df_senadores, use_container_width=True)
+else:
+    st.info("Aún no hay suficientes datos para proyectar candidatos")
+
 # 🔍 COMPARACIÓN PRECONTEO VS E14
 if preconteo and e14:
     df_e14 = pd.DataFrame(e14)
