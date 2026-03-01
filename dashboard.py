@@ -18,8 +18,8 @@ try:
     e14 = supabase.table("resultados_e14").select("*").execute().data
     mesas_totales = supabase.table("mesas").select("id_mesa").execute().data
 
-except Exception:
-    st.error("Error conectando con la base")
+except Exception as e:
+    st.error(f"Error conectando con la base: {e}")
     st.stop()
 
 if not preconteo:
