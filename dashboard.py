@@ -2,15 +2,8 @@ import streamlit as st
 import pandas as pd
 
 st.title("Proyección Senado Colombia")
-
-# Datos simulados iniciales
-data = {
-    "Partido": ["Liberal", "Conservador", "Verde", "Pacto", "Centro"],
-    "Votos": [2400000, 2100000, 1600000, 1900000, 800000]
-}
-
-df = pd.DataFrame(data)
-
+# Leer datos reales desde CSV
+df = pd.read_csv("datos.csv")
 st.subheader("Votos por partido")
 st.bar_chart(df.set_index("Partido"))
 
