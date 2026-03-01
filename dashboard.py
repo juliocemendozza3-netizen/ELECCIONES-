@@ -1,19 +1,38 @@
 import streamlit as st
 import pandas as pd
+from supabase import create_client
 
-st.title("Proyección Senado Colombia")
-# Leer datos reales desde CSV
-df = pd.read_csv("datos.csv")
+st.title("Proyección Senado Colombia en Tiempo Real")
+
+# 🔹 Conexión a Supabase
+SUPABASE_URL = "https://afpmkctzeeonkrlcimjf.supabase.co"
+SUPABASE_KEY = "TU_ANON_KEY_AQUI"
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# 🔹 Leer datos de la tabla votos
+response = supabase.table("votos").select("*").execute()
+data = response.data
+
+if len(data) == 0:
+    st.warning("Aún no hay datos en la base")
+    st.stop()
+
+df = pd.DataFrame(data)
+
+# 🔹 Consolidar votos por partido
+df_partidos = df.groupby("partido")["votos"].sum().reset_index()
+
 st.subheader("Votos por partido")
-st.bar_chart(df.set_index("Partido"))
+st.bar_chart(df_partidos.set_index("partido"))
 
-# Método D’Hondt
+# 🔹 Método D’Hondt
 curules = 100
 cocientes = []
 
-for _, row in df.iterrows():
+for _, row in df_partidos.iterrows():
     for i in range(1, curules+1):
-        cocientes.append((row["Partido"], row["Votos"]/i))
+        cocientes.append((row["partido"], row["votos"]/i))
 
 cocientes.sort(key=lambda x: x[1], reverse=True)
 
