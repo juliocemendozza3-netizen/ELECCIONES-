@@ -1,5 +1,6 @@
 import time
+import datetime
 
 while True:
-    print("Robot activo...")
-    time.sleep(60)
+    print("Robot activo:", datetime.datetime.now())
+    time.sleep(10)
