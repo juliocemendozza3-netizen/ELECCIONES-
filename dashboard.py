@@ -17,7 +17,7 @@ try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
     # 🔹 PRECONTEO desde API externa (Render)
-    API_PRECONTEO = "https://TU-SERVICIO.onrender.com/preconteo"
+   API_PRECONTEO = "https://api-preconteo.onrender.com/preconteo"
     try:
         preconteo = requests.get(API_PRECONTEO, timeout=10).json()
     except:
