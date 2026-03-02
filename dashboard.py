@@ -10,14 +10,14 @@ st.set_page_config(page_title="Senado Colombia", layout="wide")
 st.title("🗳️ Centro de Monitoreo Electoral – Senado Colombia")
 
 SUPABASE_URL = "https://afpmkctzeeonkrlcimjf.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcG1rY3R6ZWVvbmtybGNpbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODgwNjcsImV4cCI6MjA4Nzk2NDA2N30.RDHiPO4dmwqClJPBLHWXzM-d6OROSQniKypko8GEYkc"
+SUPABASE_KEY = "TU_KEY_AQUI"
 
 # 🔹 Conexión general
 try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
     # 🔹 PRECONTEO desde API externa (Render)
-   API_PRECONTEO = "https://api-preconteo.onrender.com/preconteo"
+    API_PRECONTEO = "https://api-preconteo.onrender.com/preconteo"
     try:
         preconteo = requests.get(API_PRECONTEO, timeout=10).json()
     except:
