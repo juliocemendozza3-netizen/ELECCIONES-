@@ -3,3 +3,5 @@ pandas
 supabase
 streamlit-autorefresh
 flask
+fastapi
+uvicorn
