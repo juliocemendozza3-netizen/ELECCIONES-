@@ -11,12 +11,20 @@ st.title("🗳️ Centro de Monitoreo Electoral – Senado Colombia")
 SUPABASE_URL = "https://afpmkctzeeonkrlcimjf.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmcG1rY3R6ZWVvbmtybGNpbWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODgwNjcsImV4cCI6MjA4Nzk2NDA2N30.RDHiPO4dmwqClJPBLHWXzM-d6OROSQniKypko8GEYkc"
 
-try:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+import requests
 
-    preconteo = supabase.table("resultados_preconteo").select("*").execute().data
-    e14 = supabase.table("resultados_e14").select("*").execute().data
-    mesas_totales = supabase.table("mesas").select("id_mesa").execute().data
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# 🔹 Preconteo desde API externa
+try:
+    API_PRECONTEO = "https://TU-SERVICIO.onrender.com/preconteo"
+    preconteo = requests.get(API_PRECONTEO, timeout=10).json()
+except:
+    preconteo = []
+
+# 🔹 E14 y mesas siguen en Supabase
+e14 = supabase.table("resultados_e14").select("*").execute().data
+mesas_totales = supabase.table("mesas").select("id_mesa").execute().data
 
 except Exception as e:
     st.error(f"Error conectando con la base: {e}")
